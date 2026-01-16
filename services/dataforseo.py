@@ -11,11 +11,19 @@ load_dotenv()
 class DataForSeoService:
     """Interagisce con le API di DataForSEO per recuperare i dati SERP e AIO."""
     def __init__(self):
-        self.credentials = (
-            "innovation@webranking.it",
-            # userdata.get('DATAFORSEO_SECRET')
-            secrets.get_secret(name=os.getenv("DATAFORSEO_SECRET"), project_id=os.getenv("GCP_PROJECT_ID_RANKING")),
-        )
+        # Try to get credentials from Environment/Streamlit Secrets first
+        login = os.getenv("DATAFORSEO_LOGIN") or "innovation@webranking.it"
+        password = os.getenv("DATAFORSEO_PASSWORD")
+
+        if not password:
+            # Fallback to GCP Secret Manager (Legacy)
+            try:
+                password = secrets.get_secret(name=os.getenv("DATAFORSEO_SECRET"), project_id=os.getenv("GCP_PROJECT_ID_RANKING"))
+            except Exception as e:
+                print(f"Warning: Could not retrieve DataForSEO secret from GCP: {e}")
+                password = None
+
+        self.credentials = (login, password)
 
     def post_request(self, keyword_list: List[str], get_aio: bool = False) -> Dict:
         """Invia una richiesta per creare un task di analisi SERP."""

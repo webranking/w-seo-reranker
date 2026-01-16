@@ -23,10 +23,18 @@ class GeminiService:
         self.temperature = temperature
         self.files = []
 
-        self.api_key = secrets.get_secret(
-            name=os.getenv("SECRET_MANAGER_WR_GEMINI_RANKING_ACCESS"),
-            project_id=os.getenv("GCP_PROJECT_ID_RANKING")
-        )
+        # Try to get API KEY from Environment/Streamlit Secrets first
+        self.api_key = os.getenv("GOOGLE_API_KEY")
+        
+        if not self.api_key:
+            # Fallback to GCP Secret Manager (Legacy)
+            try:
+                self.api_key = secrets.get_secret(
+                    name=os.getenv("SECRET_MANAGER_WR_GEMINI_RANKING_ACCESS"),
+                    project_id=os.getenv("GCP_PROJECT_ID_RANKING")
+                )
+            except Exception as e:
+                logger.warning(f"Could not retrieve Gemini API Key from GCP: {e}")
         self.client = genai.Client(api_key=self.api_key)
 
     def upload_file(self, filepath):
