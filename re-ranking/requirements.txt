@@ -1,0 +1,22 @@
+# Services - API
+google-api-python-client==2.182.0
+google-auth==2.41.0
+google-cloud-secret-manager==2.10.0
+google-crc32c==1.3.0
+
+# AI
+google-genai==1.40.0
+google-generativeai
+scikit-learn
+numpy
+
+google-cloud-discoveryengine    # ranking
+
+requests
+nest-asyncio==1.6.0
+playwright
+
+python-dotenv
+
+# Streamlit
+streamlit

@@ -1,0 +1,30 @@
+{
+  "Strategie di marketing omnicanale per un brand di abbigliamento con negozi fisici e online": [
+    {
+      "title": null,
+      "text": "Per un brand di abbigliamento, le strategie omnicanale si basano sull' integrazione totale di negozi fisici e online per offrire un'esperienza cliente fluida e coerente, tramite l' unificazione dei sistemi, la personalizzazione dei messaggi (es. Click & Collect, resi in negozio, consulenza virtuale ), l' uso strategico dei dati per offerte mirate ( remarketing ), e la gestione centralizzata dell'inventario per disponibilità in tempo reale, sfruttando tecnologie come app mobili e camerini virtuali per arricchire l'esperienza in-store e online.",
+      "references": [
+        {
+          "url": "https://advertising.amazon.com/it-it/library/guides/omnichannel-marketing#:~:text=L'espressione%20%22strategia%20omnicanale%22,touchpoint%20sia%20digitali%20sia%20fisici.",
+          "scraped_content": "L'espressione \"strategia omnicanale\" si riferisce all'approccio olistico di un brand verso ogni touchpoint del cliente su tutti i canali. Con queste strategie, i brand si impegnano per offrire ai clienti un'esperienza costante e coerente attraverso touchpoint sia digitali sia fisici."
+        },
+        {
+          "url": "https://www.shopify.com/it/blog/omnichannel-retail",
+          "scraped_content": "no-anchor"
+        },
+        {
+          "url": "https://www.magnews.it/blog/il-mondo-di-magnews/strategie-omnichannel-marketing-e-visione-customer-centric-come-differenziare-il-proprio-brand/#:~:text=Settore%20moda%20e%20apparel%E2%80%8B,%C3%A8%20in%20prossimit%C3%A0%20del%20negozio.",
+          "scraped_content": "Settore moda e apparel​ All’interno degli shop fisici, si stanno implementando alcune tecnologie per consultare ed ordinare prodotti dal catalogo online, per provare virtualmente i vestiti in una sorta di “camerino virtuale”, ed ancora, ottenere promozioni attraverso l’App quando si è in prossimità del negozio."
+        },
+        {
+          "url": "https://www.tun2u.it/strategie-per-integrare-le-commerce-nel-retail-omnicanale/#:~:text=Ottimizzare%20la%20logistica%20e%20la,diminuisce%20l'impatto%20logistico%20interno.",
+          "scraped_content": "match-error"
+        },
+        {
+          "url": "https://fourwayshop.it/blog/guida-retail-omnichannel/",
+          "scraped_content": "no-anchor"
+        }
+      ]
+    }
+  ]
+}
