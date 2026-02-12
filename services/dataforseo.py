@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 import os
 import time
-import requests
+import requests # trigger deployment
+
 
 from typing import List, Dict
 
