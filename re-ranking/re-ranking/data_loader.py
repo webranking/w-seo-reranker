@@ -8,35 +8,81 @@ from services.dataforseo import DataForSeoService
 
 # --- Modulo Data Loader ---
 
-def request_and_retrieve_serp(queries: Dict[str, str]) -> dict:
-    data_for_seo = DataForSeoService() # Assicurati che questa classe sia definita o importata
+def request_and_retrieve_serp(queries: Dict[str, str], max_retries: int = 2) -> dict:
+    """Recupera i dati SERP + AI Overview per ogni query, con retry robusto.
+    
+    Args:
+        queries: Dizionario {query: testo}.
+        max_retries: Numero massimo di tentativi per l'intera richiesta (post + polling).
+    """
+    data_for_seo = DataForSeoService()
 
     aio_full_data = {}
 
     for index, query in enumerate(queries.keys()):
+        print(f"\n{'='*60}")
         print(f"[{index + 1}/{len(queries)}] Recupero AIO per la query: '{query}'")
-        try:
-            post_data = data_for_seo.post_request(keyword_list=[query], get_aio=True)
-            task_id = post_data["tasks"][0]["id"]
-            serp_data = data_for_seo.get_task_polling(task_id)
+        print(f"{'='*60}")
+        
+        aio_data = []
+        
+        for attempt in range(1, max_retries + 1):
+            try:
+                print(f"[AIO] Tentativo {attempt}/{max_retries} per query: '{query}'")
+                
+                # POST - Creazione task
+                post_data = data_for_seo.post_request(keyword_list=[query], get_aio=True)
+                task_id = post_data["tasks"][0]["id"]
+                task_status_code = post_data["tasks"][0].get("status_code", "N/A")
+                print(f"[AIO] Task creato - ID: {task_id}, status_code: {task_status_code}")
 
-            results = serp_data["tasks"][0].get("result", [])
-            aio_results = next((r for r in results[0]["items"] if r["type"] == "ai_overview"), None) \
-                if results and results[0].get("items") else None
+                # POLLING - Attesa risultati (con verifica AIO)
+                serp_data = data_for_seo.get_task_polling(task_id, require_aio=True)
 
-            aio_data = []
-            if aio_results:
-                for item in aio_results.get("items", []):
-                    section = {
-                        "title": item.get("title"),
-                        "text": item.get("text"),
-                        "references": [{"url": ref["url"]} for ref in item.get("references", []) if ref.get("url")]
-                    }
-                    aio_data.append(section)
-            aio_full_data[query] = aio_data
-        except Exception as e:
-            print(f"Contenuto AIO non disponibile - error: {e}")
-            aio_full_data[query] = []
+                # Estrazione risultati
+                results = serp_data["tasks"][0].get("result", [])
+                
+                if not results:
+                    print(f"[AIO] ⚠️ Nessun result nel task completato [{task_id}]")
+                    if attempt < max_retries:
+                        print(f"[AIO] Ritento l'intera richiesta...")
+                        continue
+                    break
+                
+                items = results[0].get("items", [])
+                item_types = results[0].get("item_types", [])
+                print(f"[AIO] items totali nella SERP: {len(items)}")
+                print(f"[AIO] item_types: {item_types}")
+                
+                # Cerca ai_overview tra gli items
+                aio_results = next((r for r in items if r["type"] == "ai_overview"), None)
+
+                if aio_results:
+                    print(f"[AIO] ✅ ai_overview trovata! Estrazione sezioni...")
+                    for item in aio_results.get("items", []):
+                        section = {
+                            "title": item.get("title"),
+                            "text": item.get("text"),
+                            "references": [{"url": ref["url"]} for ref in item.get("references", []) if ref.get("url")]
+                        }
+                        aio_data.append(section)
+                    print(f"[AIO] ✅ {len(aio_data)} sezioni AIO estratte per query: '{query}'")
+                    break  # Successo, esci dal loop dei retry
+                else:
+                    print(f"[AIO] ⚠️ ai_overview NON trovata tra gli items (type presenti: {[r.get('type') for r in items[:10]]})")
+                    if attempt < max_retries:
+                        print(f"[AIO] Ritento l'intera richiesta (tentativo {attempt + 1}/{max_retries})...")
+                    else:
+                        print(f"[AIO] ❌ ai_overview non recuperata dopo {max_retries} tentativi per query: '{query}'")
+                        
+            except Exception as e:
+                print(f"[AIO] ❌ Errore al tentativo {attempt}/{max_retries}: {e}")
+                if attempt < max_retries:
+                    print(f"[AIO] Ritento l'intera richiesta...")
+                else:
+                    print(f"[AIO] ❌ Tutti i tentativi falliti per query: '{query}'")
+
+        aio_full_data[query] = aio_data
 
     return aio_full_data
 

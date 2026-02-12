@@ -184,7 +184,16 @@ else:
                 with open(aio_full_path, 'r', encoding='utf-8') as f:
                     aio_full_data = json.load(f)
                 
+                # Debug: log delle chiavi disponibili nel file AIO
+                available_keys = list(aio_full_data.keys())
+                print(f"[DEBUG AIO] Chiavi disponibili nel file: {available_keys}")
+                print(f"[DEBUG AIO] Query cercata: '{target_query}'")
+                
                 query_data = aio_full_data.get(target_query, [])
+                
+                print(f"[DEBUG AIO] Risultato lookup: {len(query_data)} elementi trovati")
+                if not query_data:
+                    print(f"[DEBUG AIO] ⚠️ Nessun dato trovato! Verificare che la query corrisponda esattamente a una delle chiavi.")
                 
                 if query_data:
                     with st.expander(f"📚 Fonti Recuperate ({len(query_data)} sezioni AIO)", expanded=False):
