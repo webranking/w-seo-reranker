@@ -3,10 +3,15 @@
 import asyncio
 import json
 import os
+import subprocess
 import urllib.parse
 from typing import Dict
 from playwright.async_api import async_playwright
 import requests
+
+# Install Playwright's bundled Chromium browser at startup
+# This avoids relying on the system chromium package (which causes conflicts on Streamlit Cloud)
+subprocess.run(["playwright", "install", "chromium"], check=True)
 
 # --- Modulo Scraper ---
 
