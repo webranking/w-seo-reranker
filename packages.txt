@@ -1,4 +1,3 @@
-chromium
 libnss3
 libnss3-dev
 libfontconfig1
