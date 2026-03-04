@@ -14,8 +14,7 @@ google-cloud-discoveryengine    # ranking
 
 requests
 nest-asyncio==1.6.0
-beautifulsoup4
-lxml
+playwright
 
 python-dotenv
 

@@ -3,10 +3,15 @@
 import asyncio
 import json
 import os
+import subprocess
 import urllib.parse
 from typing import Dict
+from playwright.async_api import async_playwright
 import requests
-from bs4 import BeautifulSoup
+
+# Install Playwright's bundled Chromium browser at startup
+# This avoids relying on the system chromium package (which causes conflicts on Streamlit Cloud)
+subprocess.run(["playwright", "install", "chromium"], check=True)
 
 # --- Modulo Scraper ---
 
@@ -53,21 +58,27 @@ async def get_highlighted_text_from_url(url: str, timeout: int):
 
     if "#:~:text=" not in url: return "no-anchor"
 
-    try:
-        r = requests.get(clean_url, timeout=timeout // 1000, headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        })
-        if r.status_code == 200:
-            soup = BeautifulSoup(r.text, 'html.parser')
-            # Remove script and style elements
-            for tag in soup(['script', 'style', 'noscript']):
-                tag.decompose()
-            body_text = soup.get_text(separator=' ')
+    async with async_playwright() as p:
+        browser = None
+        try:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(clean_url, timeout=timeout, wait_until='domcontentloaded')
+            body_text = await page.locator('body').inner_text()
             return get_anchored_text(url, body_text)
-        return f"error - {r.status_code}"
-    except Exception as e:
-        print(f"[ERROR] requests failed for {url}: {e}")
-        return f"error - {e}"
+        except Exception as e:
+            print(f"[ERROR] Playwright failed for {url}: {e}. Falling back to requests.")
+            try:
+              r = requests.get(clean_url, timeout=10)
+              if r.status_code == 200:
+                return r.text
+              return f"error - {r.status_code}"
+            except Exception as e2:
+              print(f"[ERROR fallback] requests failed: {url} - {e2}")
+              return f"error - {e2}"
+        finally:
+          if browser:
+            await browser.close()
 
 async def scrape_and_populate_references(aio_data: Dict, parallel_tasks: int, timeout: int) -> Dict:
     """Esegue lo scraping in parallelo per tutti gli URL di riferimento."""

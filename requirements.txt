@@ -17,8 +17,7 @@ scikit-learn
 pandas
 
 # Web scraping
-beautifulsoup4
-lxml
+playwright
 requests
 
 # Utilities
