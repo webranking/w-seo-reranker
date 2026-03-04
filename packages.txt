@@ -10,6 +10,5 @@ libxi6
 libxtst6
 libnss3
 libxrandr2
-libasound2
 libatk-bridge2.0-0
 libgtk-3-0
