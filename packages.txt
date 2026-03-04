@@ -1,7 +1,6 @@
 chromium
 libnss3
 libnss3-dev
-libgconf-2-4
 libfontconfig1
 libx11-xcb1
 libxcomposite1
